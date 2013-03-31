@@ -20,6 +20,18 @@
 
     <script>
       var navigation = responsiveNav("#nav");
+      
+      navigation.inited(function () {
+        console.log("inited");
+      });
+      
+      navigation.opened(function () {
+        console.log("opened");
+      });
+      
+      navigation.closed(function () {
+        console.log("closed");
+      });
     </script>
 
     <!--[if lte IE 9]><script src="respond.js"></script><![endif]-->

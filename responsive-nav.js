@@ -6,8 +6,8 @@
  * Available under the MIT license
  */
 
-/* jshint strict:false, forin:false, noarg:true, noempty:true, eqeqeq:true, boss:true,
-bitwise:true, undef:true, unused:true, browser:true, devel:true, indent:2, expr:true */
+/* jshint strict:false, forin:false, noarg:true, noempty:true, eqeqeq:true,
+boss:true, bitwise:true, browser:true, devel:true, indent:2, expr:true */
 /* exported responsiveNav */
 
 var responsiveNav = (function (window, document) {
@@ -159,6 +159,23 @@ var responsiveNav = (function (window, document) {
     };
 
   ResponsiveNav.prototype = {
+    callbacks: [],
+
+    // Callbacks
+    inited: function (fn) {
+      addEvent(window, "responsiveNav-inited", fn, false);
+      this.callbacks.push(["inited", fn]);
+    },
+
+    opened: function (fn) {
+      addEvent(window, "responsiveNav-opened", fn, false);
+      this.callbacks.push(["opened", fn]);
+    },
+
+    closed: function (fn) {
+      addEvent(window, "responsiveNav-closed", fn, false);
+      this.callbacks.push(["closed", fn]);
+    },
 
     // Public methods
     destroy: function () {
@@ -175,6 +192,11 @@ var responsiveNav = (function (window, document) {
       removeEvent(navToggle, "touchstart", this, false);
       removeEvent(navToggle, "keyup", this, false);
       removeEvent(navToggle, "click", this, false);
+
+      while (this.callbacks.length) {
+        removeEvent(window, "responsivenav-" + this.callbacks[0][0], this.callbacks[0][1], false);
+        this.callbacks.shift();
+      }
 
       if (!this.options.customToggle) {
         navToggle.parentNode.removeChild(navToggle);
@@ -198,6 +220,7 @@ var responsiveNav = (function (window, document) {
         navWrapper.setAttribute(aria, false);
 
         navOpen = true;
+        this.__event("opened");
         log("Opened nav");
 
       } else {
@@ -213,6 +236,7 @@ var responsiveNav = (function (window, document) {
         }
 
         navOpen = false;
+        this.__event("closed");
         log("Closed nav");
       }
       return false;
@@ -336,6 +360,8 @@ var responsiveNav = (function (window, document) {
     },
 
     __resize: function () {
+      this.__event("inited");
+
       if (window.getComputedStyle(navToggle, null).getPropertyValue("display") !== "none") {
         navToggle.setAttribute(aria, false);
 
@@ -364,6 +390,15 @@ var responsiveNav = (function (window, document) {
         this.wrapper.style.position = this.options.openPos;
         this.__removeStyles();
       }
+    },
+
+    __event: function (type) {
+      if (document.createEvent) {
+        var ev = document.createEvent("Event");
+        ev.initEvent("responsiveNav-" + type, true, true);
+        this.wrapper.dispatchEvent(ev);
+      } else if (document.createEventObject) {
+      }
     }
 
   };
@@ -373,7 +408,6 @@ var responsiveNav = (function (window, document) {
     if (!__instance) {
       __instance = new ResponsiveNav(el, options);
     }
-
     return __instance;
   }
 
