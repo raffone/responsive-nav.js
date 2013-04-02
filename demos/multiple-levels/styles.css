@@ -1,0 +1,16 @@
+.js #nav ul ul {
+  clip: rect(0 0 0 0);
+  max-height: 0;
+  position: absolute;
+  display: block;
+  overflow: hidden;
+}
+
+.js #nav .rn-subnav {
+  background: red;
+}
+
+.js #nav .rn-subnav.opened ul {
+  max-height: none;
+  position: relative;
+}

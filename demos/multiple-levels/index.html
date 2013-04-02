@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Responsive Nav &middot; Multiple Levels Demo</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="../../responsive-nav.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="../../responsive-nav.js"></script>
+  </head>
+  <body>
+
+    <div id="nav">
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Projects</a>
+          <ul>
+            <li><a href="#">Web Design</a></li>
+            <li><a href="#">Identity</a></li>
+            <li><a href="#">Illustrations</a></li>
+          </ul>
+        </li>
+        <li><a href="#">Blog</a>
+          <ul>
+            <li><a href="#">News</a></li>
+            <li><a href="#">Articles</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <script>
+      var navigation = responsiveNav("#nav", {
+        submenu: true
+      });
+    </script>
+
+  </body>
+</html>

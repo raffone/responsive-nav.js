@@ -104,7 +104,7 @@ var responsiveNav = (function (window, document) {
       return firstChild;
     },
 
-    log = function () { },
+    log = function () {},
 
     ResponsiveNav = function (el, options) {
       var i;
@@ -116,6 +116,7 @@ var responsiveNav = (function (window, document) {
         label: "Menu",        // String: Label for the navigation toggle
         insert: "after",      // String: Insert the toggle before or after the navigation
         customToggle: "",     // Selector: Specify the ID of a custom toggle
+        submenu: false,       // Boolean: 2nd level submenu support, true or false
         tabIndex: 1,          // Integer: Specify the default toggle's tabindex
         openPos: "relative",  // String: Position of the opened nav, relative or static
         jsClass: "js",        // String: 'JS enabled' class which is added to <html> el
@@ -158,7 +159,7 @@ var responsiveNav = (function (window, document) {
       this.wrapper.inner = getFirstChild(this.wrapper);
 
       // Init
-      this.__init(this);
+      this._init(this);
     };
 
   ResponsiveNav.prototype = {
@@ -170,7 +171,7 @@ var responsiveNav = (function (window, document) {
       this.wrapper.removeAttribute("style");
       this.wrapper.removeAttribute(aria);
       this.wrapper = null;
-      __instance = null;
+      _instance = null;
 
       removeEvent(window, "load", this, false);
       removeEvent(window, "resize", this, false);
@@ -228,30 +229,31 @@ var responsiveNav = (function (window, document) {
 
       switch (evt.type) {
       case "mousedown":
-        this.__onmousedown(evt);
+        this._onmousedown(evt);
         break;
       case "touchstart":
-        this.__ontouchstart(evt);
+        this._ontouchstart(evt);
         break;
       case "keyup":
-        this.__onkeyup(evt);
+        this._onkeyup(evt);
         break;
       case "click":
-        this.__onclick(evt);
+        this._onclick(evt);
         break;
       case "load":
       case "resize":
-        this.__resize(evt);
+        this._resize(evt);
         break;
       }
     },
 
     // Private methods
-    __init: function () {
+    _init: function () {
       log("Inited Responsive Nav");
 
       this.wrapper.className = this.wrapper.className + " closed";
-      this.__createToggle();
+      this._createToggle();
+      this._handleSubmenu();
 
       addEvent(window, "load", this, false);
       addEvent(window, "resize", this, false);
@@ -261,21 +263,21 @@ var responsiveNav = (function (window, document) {
       addEvent(navToggle, "click", this, false);
     },
 
-    __createStyles: function () {
+    _createStyles: function () {
       if (!styleElement.parentNode) {
         head.appendChild(styleElement);
         log("Created 'styleElement' to <head>");
       }
     },
 
-    __removeStyles: function () {
+    _removeStyles: function () {
       if (styleElement.parentNode) {
         styleElement.parentNode.removeChild(styleElement);
         log("Removed 'styleElement' from <head>");
       }
     },
 
-    __createToggle: function () {
+    _createToggle: function () {
       if (!this.options.customToggle) {
         var toggle = document.createElement("a");
         toggle.setAttribute("href", "#");
@@ -305,30 +307,61 @@ var responsiveNav = (function (window, document) {
       }
     },
 
-    __onmousedown: function (e) {
+    _handleSubmenu: function () {
+      if (this.options.submenu) {
+        var that = this,
+          subOpen = false,
+          listEl = this.wrapper.inner.getElementsByTagName("li");
+
+        for (var i = 0; i < listEl.length; i++) {
+          if (listEl[i].getElementsByTagName("ul").length) {
+            listEl[i].className = listEl[i].className + " rn-subnav closed";
+            listEl[i].setAttribute("data", "rn-subnav");
+            var hasSubmenu = document.getElementById("rn-subnav-" + i);
+          }
+        }
+
+        // Note: this only selects the last li with ul
+        // Do not use right now…
+        hasSubmenu.onclick = function (e) {
+          e.preventDefault ? e.preventDefault() : e.returnValue = false;
+          if (!subOpen) {
+            subOpen = true;
+            hasSubmenu.className = hasSubmenu.className.replace(/(^|\s)closed(\s|$)/, " opened ");
+            that._resize();
+          } else {
+            subOpen = false;
+            hasSubmenu.className = hasSubmenu.className.replace(/(^|\s)opened(\s|$)/, " closed ");
+            that._resize();
+          }
+        }
+      }
+    },
+
+    _onmousedown: function (e) {
       e.preventDefault ? e.preventDefault() : e.returnValue = false;
       this.toggle(e);
     },
 
-    __ontouchstart: function (e) {
+    _ontouchstart: function (e) {
       // Touchstart event fires before the mousedown event and can wipe it
       navToggle.onmousedown = null;
       e.preventDefault ? e.preventDefault() : e.returnValue = false;
       this.toggle(e);
     },
 
-    __onkeyup: function (e) {
+    _onkeyup: function (e) {
       var evt = e || window.event;
       if (evt.keyCode === 13) {
         this.toggle(e);
       }
     },
 
-    __onclick: function (e) {
+    _onclick: function (e) {
       e.preventDefault ? e.preventDefault() : e.returnValue = false;
     },
 
-    __transitions: function () {
+    _transitions: function () {
       if (this.options.animate) {
         var objStyle = this.wrapper.style,
           transition = "max-height " + this.options.transition + "ms";
@@ -340,7 +373,7 @@ var responsiveNav = (function (window, document) {
       }
     },
 
-    __resize: function () {
+    _resize: function () {
       this.options.init();
 
       if (window.getComputedStyle(navToggle, null).getPropertyValue("display") !== "none") {
@@ -351,8 +384,8 @@ var responsiveNav = (function (window, document) {
           this.wrapper.style.position = "absolute";
         }
 
-        this.__createStyles();
-        this.__transitions();
+        this._createStyles();
+        this._transitions();
 
         var savedHeight = this.wrapper.inner.offsetHeight,
           innerStyles = "#" + this.wrapperEl + ".opened{max-height:" + savedHeight + "px }";
@@ -369,18 +402,18 @@ var responsiveNav = (function (window, document) {
         navToggle.setAttribute(aria, true);
         this.wrapper.setAttribute(aria, false);
         this.wrapper.style.position = this.options.openPos;
-        this.__removeStyles();
+        this._removeStyles();
       }
     }
 
   };
 
-  var __instance;
+  var _instance;
   function rn (el, options) {
-    if (!__instance) {
-      __instance = new ResponsiveNav(el, options);
+    if (!_instance) {
+      _instance = new ResponsiveNav(el, options);
     }
-    return __instance;
+    return _instance;
   }
 
   return rn;
