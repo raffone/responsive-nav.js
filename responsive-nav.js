@@ -130,7 +130,7 @@ var responsiveNav = (function (window, document) {
       this.options = {
         animate: true,        // Boolean: Use CSS3 transitions, true or false
         transition: 400,      // Integer: Speed of the transition, in milliseconds
-        autoheight: true,         
+        offcanvas: false,         
         label: "Menu",        // String: Label for the navigation toggle
         insert: "after",      // String: Insert the toggle before or after the navigation
         customToggle: "",     // Selector: Specify the ID of a custom toggle
@@ -218,7 +218,12 @@ var responsiveNav = (function (window, document) {
       if (!navOpen) {
         removeClass(nav, "closed");
         addClass(nav, "opened");
-        nav.style.position = opts.openPos;
+        
+
+        if (!this.options.offcanvas) {
+          nav.style.position = opts.openPos;
+        }
+
         setAttributes(nav, {"aria-hidden": "false"});
 
         navOpen = true;
@@ -230,12 +235,15 @@ var responsiveNav = (function (window, document) {
         addClass(nav, "closed");
         setAttributes(nav, {"aria-hidden": "true"});
 
-        if (opts.animate) {
-          setTimeout(function () {
+
+        if (!this.options.offcanvas) {
+          if (opts.animate) {
+            setTimeout(function () {
+              nav.style.position = "absolute";
+            }, opts.transition + 10);
+          } else {
             nav.style.position = "absolute";
-          }, opts.transition + 10);
-        } else {
-          nav.style.position = "absolute";
+          }
         }
 
         navOpen = false;
@@ -411,17 +419,21 @@ var responsiveNav = (function (window, document) {
         // If the navigation is hidden
         if (nav.className.match(/(^|\s)closed(\s|$)/)) {
           setAttributes(nav, {"aria-hidden": "true"});
-          nav.style.position = "absolute";
+          if (!opts.offcanvas) {
+            nav.style.position = "absolute";
+          }
         }
 
         this._createStyles();
-        if (this.options.autoheight) {
+        if (!this.options.offcanvas) {
           this._calcHeight();
         }
       } else {
         setAttributes(navToggle, {"aria-hidden": "true"});
         setAttributes(nav, {"aria-hidden": "false"});
-        nav.style.position = opts.openPos;
+        if (!this.options.offcanvas) {
+          nav.style.position = opts.openPos;
+        }
         this._removeStyles();
       }
 
