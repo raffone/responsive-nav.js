@@ -130,6 +130,7 @@ var responsiveNav = (function (window, document) {
       this.options = {
         animate: true,        // Boolean: Use CSS3 transitions, true or false
         transition: 400,      // Integer: Speed of the transition, in milliseconds
+        autoheight: true,         
         label: "Menu",        // String: Label for the navigation toggle
         insert: "after",      // String: Insert the toggle before or after the navigation
         customToggle: "",     // Selector: Specify the ID of a custom toggle
@@ -414,7 +415,9 @@ var responsiveNav = (function (window, document) {
         }
 
         this._createStyles();
-        this._calcHeight();
+        if (this.options.autoheight) {
+          this._calcHeight();
+        }
       } else {
         setAttributes(navToggle, {"aria-hidden": "true"});
         setAttributes(nav, {"aria-hidden": "false"});
