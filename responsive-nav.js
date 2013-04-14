@@ -130,8 +130,8 @@ var responsiveNav = (function (window, document) {
       this.options = {
         animate: true,        // Boolean: Use CSS3 transitions, true or false
         transition: 400,      // Integer: Speed of the transition, in milliseconds
-        offcanvas: false,         
-        label: "Menu",        // String: Label for the navigation toggle
+        offcanvas: false,
+        label: "<span>Menu</span>",        // String: Label for the navigation toggle
         insert: "after",      // String: Insert the toggle before or after the navigation
         customToggle: "",     // Selector: Specify the ID of a custom toggle
         openPos: "relative",  // String: Position of the opened nav, relative or static
@@ -218,7 +218,6 @@ var responsiveNav = (function (window, document) {
       if (!navOpen) {
         removeClass(nav, "closed");
         addClass(nav, "opened");
-        
 
         if (!this.options.offcanvas) {
           nav.style.position = opts.openPos;
@@ -299,6 +298,7 @@ var responsiveNav = (function (window, document) {
     _createStyles: function () {
       if (!styleElement.parentNode) {
         head.appendChild(styleElement);
+        addClass(nav, "active");
         log("Created 'styleElement' to <head>");
       }
     },
@@ -306,6 +306,7 @@ var responsiveNav = (function (window, document) {
     _removeStyles: function () {
       if (styleElement.parentNode) {
         styleElement.parentNode.removeChild(styleElement);
+        removeClass(nav, "active");
         log("Removed 'styleElement' from <head>");
       }
     },
@@ -430,6 +431,7 @@ var responsiveNav = (function (window, document) {
         }
       } else {
         setAttributes(navToggle, {"aria-hidden": "true"});
+
         setAttributes(nav, {"aria-hidden": "false"});
         if (!this.options.offcanvas) {
           nav.style.position = opts.openPos;
